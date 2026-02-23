@@ -1,1 +1,75 @@
-/* We'll add our styles here */
+:root {
+  /* Base background & surfaces */
+  --color-bg: #050712;
+  --color-surface: rgba(15, 18, 32, 0.92);
+  --color-surface-elevated: rgba(22, 26, 45, 0.96);
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-overlay-soft: rgba(9, 11, 22, 0.6);
+
+  /* Text */
+  --color-text-primary: #f5f7ff;
+  --color-text-muted: rgba(237, 240, 255, 0.65);
+  --color-text-inverse: #050712;
+
+  /* Work vs break accents */
+  --color-accent-work: #ff5b3c;
+  --color-accent-work-soft: rgba(255, 91, 60, 0.35);
+  --color-accent-break: #1ed1a4;
+  --color-accent-break-soft: rgba(30, 209, 164, 0.35);
+
+  /* States */
+  --color-accent-focus: #7c8cff;
+  --color-danger: #ff4b81;
+
+  /* Spacing scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+
+  /* Typography */
+  --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 4rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Border radius */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 999px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-md);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
