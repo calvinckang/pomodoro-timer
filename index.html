@@ -7,7 +7,26 @@
     <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <main class="timer" aria-label="Pomodoro timer">
+            <header class="timer-header">
+                <p id="mode-indicator" class="timer-mode" aria-live="polite">Work</p>
+            </header>
+
+            <section class="timer-display-section">
+                <p id="time-display" class="timer-display" aria-live="polite">25:00</p>
+            </section>
+
+            <section class="timer-controls" aria-label="Timer controls">
+                <button id="start-pause-btn" class="timer-button timer-button--primary" type="button">
+                    Start
+                </button>
+                <button id="reset-btn" class="timer-button timer-button--ghost" type="button">
+                    Reset
+                </button>
+            </section>
+        </main>
+    </div>
     <script type="module" src="/src/main.js"></script>
 </body>
 </html>

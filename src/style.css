@@ -4,6 +4,7 @@
   --color-surface: rgba(15, 18, 32, 0.92);
   --color-surface-elevated: rgba(22, 26, 45, 0.96);
   --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-hover: rgba(255, 255, 255, 0.12);
   --color-overlay-soft: rgba(9, 11, 22, 0.6);
 
   /* Text */
@@ -42,6 +43,9 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
 
+  --letter-spacing-wide: 0.05em;
+  --line-height-tight: 1.1;
+
   /* Border radius */
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
@@ -72,4 +76,85 @@ body {
   align-items: center;
   justify-content: center;
   padding: var(--space-lg);
+}
+
+/* Timer shell */
+.timer {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  min-width: 18rem;
+  text-align: center;
+}
+
+.timer-header {
+  margin-bottom: var(--space-md);
+}
+
+.timer-mode {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.timer-display-section {
+  margin-bottom: var(--space-xl);
+}
+
+.timer-display {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+}
+
+.timer-controls {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.timer-button {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.timer-button:focus-visible {
+  outline: 2px solid var(--color-accent-focus);
+  outline-offset: 2px;
+}
+
+.timer-button--primary {
+  background: var(--color-accent-work);
+  color: var(--color-text-inverse);
+}
+
+.timer-button--primary:hover {
+  opacity: 0.92;
+}
+
+.timer-button--primary:active {
+  transform: scale(0.98);
+}
+
+.timer-button--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.timer-button--ghost:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-hover);
 }
