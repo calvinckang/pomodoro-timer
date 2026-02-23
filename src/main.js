@@ -25,6 +25,7 @@ const breakResetBtn = document.getElementById('settings-break-reset');
 const settingsCloseBtn = document.getElementById('settings-close-btn');
 const workErrorEl = document.getElementById('settings-work-error');
 const breakErrorEl = document.getElementById('settings-break-error');
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
 let timeRemaining = workDurationSec;
 let isRunning = false;
@@ -33,9 +34,9 @@ let completedPomodoros = 0;
 let tickIntervalId = null;
 let isSettingsOpen = false;
 let audioContext = null;
-
 const POMODORO_STORAGE_KEY = 'pomodoro-completed-count';
 const POMODORO_POSITIONS_KEY = 'pomodoro-tomato-positions';
+const THEME_STORAGE_KEY = 'pomodoro-theme';
 
 let tomatoPositions = [];
 
@@ -75,12 +76,14 @@ function getForbiddenRects() {
   const timerEl = document.querySelector('main.timer');
   const titleEl = document.querySelector('.app-title');
   const settingsButtonEl = document.getElementById('settings-btn');
+  const themeToggleButtonEl = document.getElementById('theme-toggle-btn');
 
   return {
     appRect,
     rects: [
       getAppRelativeRect(timerEl, appRect),
       getAppRelativeRect(titleEl, appRect),
+      getAppRelativeRect(themeToggleButtonEl, appRect),
       getAppRelativeRect(settingsButtonEl, appRect),
     ].filter(Boolean),
   };
@@ -556,6 +559,34 @@ document.addEventListener('keydown', (event) => {
     closeSettings();
   }
 });
+
+function getStoredTheme() {
+  try {
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === 'light' || stored === 'dark') return stored;
+  } catch (_) {}
+  return 'dark';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch (_) {}
+  if (themeToggleBtn) {
+    themeToggleBtn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    themeToggleBtn.setAttribute('title', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+}
+
+if (themeToggleBtn) {
+  applyTheme(getStoredTheme());
+  themeToggleBtn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+}
 
 loadCompletedPomodoros();
 render();

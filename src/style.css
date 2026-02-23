@@ -3,25 +3,23 @@
   --neutral-100: #ffffff;
   --neutral-200: #f5f7ff;
   --neutral-300: #edf0ff;
+  --neutral-400: #e8ebf5;
   --neutral-600: #161a2d;
   --neutral-700: #0f1220;
-  --neutral-800: #090b16;
   --neutral-900: #050712;
-  --violet-400: color-mix(in srgb, #7c8cff 35%, transparent);
   --violet-500: #7c8cff;
   --coral-400: rgba(255, 91, 60, 0.35);
   --coral-500: #ff5b3c;
   --teal-400: rgba(30, 209, 164, 0.35);
   --teal-500: #1ed1a4;
   --pink-500: #ff4b81;
+  --green-500: #3ca34a;
 
   /* Semantic: backgrounds & surfaces */
   --color-bg: var(--neutral-900);
-  --color-surface: color-mix(in srgb, var(--neutral-700) 92%, transparent);
-  --color-surface-elevated: color-mix(in srgb, var(--neutral-600) 96%, transparent);
+  --color-surface-elevated: color-mix(in srgb, var(--neutral-700) 98%, transparent);
   --color-surface-hover: color-mix(in srgb, var(--neutral-100) 4%, transparent);
   --color-input-bg: color-mix(in srgb, var(--neutral-900) 75%, transparent);
-  --color-overlay-soft: color-mix(in srgb, var(--neutral-800) 60%, transparent);
 
   /* Semantic: borders */
   --color-border-subtle: color-mix(in srgb, var(--neutral-100) 6%, transparent);
@@ -37,6 +35,7 @@
   --color-accent-work-soft: var(--coral-400);
   --color-accent-break: var(--teal-500);
   --color-accent-break-soft: var(--teal-400);
+  --color-tomato-stem: var(--green-500);
 
   /* Semantic: UI states */
   --color-accent-primary: var(--violet-500);
@@ -62,23 +61,16 @@
   --font-size-sm: 0.875rem;
   --font-size-btn-small: 0.875rem;
   --font-size-md: 1rem;
-  --font-size-lg: 1.125rem;
   --font-size-xl: 4rem;
-  --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --letter-spacing-wide: 0.05em;
   --line-height-tight: 1.1;
 
   /* Radius */
-  --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
   --radius-full: 999px;
-
-  /* Shadow */
-  --shadow-popover: 0 18px 45px rgba(0, 0, 0, 0.45);
 
   /* Transition */
   --transition-duration-fast: 0.1s;
@@ -86,6 +78,34 @@
 
   /* Focus */
   --outline-offset-tight: 1px;
+}
+
+/* Light theme */
+html[data-theme="light"] {
+  --color-bg: var(--neutral-400);
+  --color-surface-elevated: color-mix(in srgb, var(--neutral-200) 98%, transparent);
+  --color-surface-hover: color-mix(in srgb, var(--neutral-900) 4%, transparent);
+  --color-input-bg: color-mix(in srgb, var(--neutral-100) 75%, transparent);
+
+  --color-border-subtle: color-mix(in srgb, var(--neutral-900) 8%, transparent);
+  --color-border-hover: color-mix(in srgb, var(--neutral-900) 18%, transparent);
+
+  --color-text-primary: var(--neutral-700);
+  --color-text-muted: color-mix(in srgb, var(--neutral-600) 70%, transparent);
+  --color-text-inverse: var(--neutral-100);
+}
+
+/* Theme toggle icons: show sun in dark mode, moon in light mode */
+.theme-icon--moon {
+  display: none;
+}
+
+html[data-theme="light"] .theme-icon--sun {
+  display: none;
+}
+
+html[data-theme="light"] .theme-icon--moon {
+  display: block;
 }
 
 /* Timer zero: brief background flash when mode switches */
@@ -134,11 +154,8 @@ body {
   padding: var(--space-lg);
 }
 
-/* Timer shell */
+/* Timer shell – no container styling; layout only */
 .timer {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
   padding: var(--space-xl);
   min-width: 18rem;
   text-align: center;
@@ -267,6 +284,13 @@ body {
   gap: var(--space-sm);
 }
 
+.app-settings-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 .app-settings .settings-popover {
   position: absolute;
   top: calc(100% + var(--space-sm));
@@ -277,7 +301,6 @@ body {
   background: var(--color-surface-elevated);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
-  box-shadow: var(--shadow-popover);
   display: none;
   z-index: 10;
 }
@@ -465,9 +488,8 @@ body {
   position: absolute;
   width: 16px;
   height: 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--coral-500);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
   cursor: grab;
   pointer-events: auto;
 }
@@ -485,6 +507,6 @@ body {
   width: 6px;
   height: 4px;
   border-radius: 50% 0 50% 50%;
-  background: #3ca34a;
+  background: var(--color-tomato-stem);
   transform: rotate(-35deg);
 }
