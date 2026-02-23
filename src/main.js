@@ -29,9 +29,268 @@ const breakErrorEl = document.getElementById('settings-break-error');
 let timeRemaining = workDurationSec;
 let isRunning = false;
 let currentMode = 'work';
+let completedPomodoros = 0;
 let tickIntervalId = null;
 let isSettingsOpen = false;
 let audioContext = null;
+
+const POMODORO_STORAGE_KEY = 'pomodoro-completed-count';
+const POMODORO_POSITIONS_KEY = 'pomodoro-tomato-positions';
+
+let tomatoPositions = [];
+
+function getAppRelativeRect(element, appRect) {
+  if (!element) return null;
+  const rect = element.getBoundingClientRect();
+  return {
+    top: rect.top - appRect.top,
+    left: rect.left - appRect.left,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
+function rectsOverlap(a, b, padding = 0) {
+  if (!a || !b) return false;
+  const aLeft = a.left - padding;
+  const aTop = a.top - padding;
+  const aRight = a.left + a.width + padding;
+  const aBottom = a.top + a.height + padding;
+
+  const bLeft = b.left - padding;
+  const bTop = b.top - padding;
+  const bRight = b.left + b.width + padding;
+  const bBottom = b.top + b.height + padding;
+
+  return !(
+    aRight <= bLeft ||
+    aLeft >= bRight ||
+    aBottom <= bTop ||
+    aTop >= bBottom
+  );
+}
+
+function getForbiddenRects() {
+  const appRect = appEl.getBoundingClientRect();
+  const timerEl = document.querySelector('main.timer');
+  const titleEl = document.querySelector('.app-title');
+  const settingsButtonEl = document.getElementById('settings-btn');
+
+  return {
+    appRect,
+    rects: [
+      getAppRelativeRect(timerEl, appRect),
+      getAppRelativeRect(titleEl, appRect),
+      getAppRelativeRect(settingsButtonEl, appRect),
+    ].filter(Boolean),
+  };
+}
+
+function ensurePomodoroLayer() {
+  let layer = document.getElementById('pomodoro-layer');
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.id = 'pomodoro-layer';
+    layer.setAttribute('aria-hidden', 'true');
+    appEl.appendChild(layer);
+  }
+  return layer;
+}
+
+function saveTomatoPositions() {
+  try {
+    window.localStorage.setItem(
+      POMODORO_POSITIONS_KEY,
+      JSON.stringify(tomatoPositions)
+    );
+    window.localStorage.setItem(
+      POMODORO_STORAGE_KEY,
+      String(tomatoPositions.length)
+    );
+  } catch (_) {}
+}
+
+function getRandomTomatoPosition() {
+  const { appRect, rects: forbiddenRects } = getForbiddenRects();
+  const size = 16;
+  const maxWidth = appRect.width - size;
+  const maxHeight = appRect.height - size;
+  if (maxWidth <= 0 || maxHeight <= 0) return { top: 0, left: 0 };
+
+  let attempts = 0;
+  const maxAttempts = 40;
+  let position = { top: Math.random() * maxHeight, left: Math.random() * maxWidth };
+
+  while (attempts < maxAttempts) {
+    attempts += 1;
+    const left = Math.random() * maxWidth;
+    const top = Math.random() * maxHeight;
+    const candidateRect = { top, left, width: size, height: size };
+    const overlaps = forbiddenRects.some((rect) =>
+      rectsOverlap(candidateRect, rect, 4)
+    );
+    if (!overlaps) {
+      position = { top, left };
+      break;
+    }
+    position = { top, left };
+  }
+  return position;
+}
+
+function createTomatoElement(position, index) {
+  const tomatoEl = document.createElement('div');
+  tomatoEl.className = 'pomodoro-tomato';
+  tomatoEl.setAttribute('data-index', String(index));
+  tomatoEl.style.top = `${position.top}px`;
+  tomatoEl.style.left = `${position.left}px`;
+  tomatoEl.setAttribute('aria-label', 'Completed pomodoro');
+  return tomatoEl;
+}
+
+function makeTomatoDraggable(tomatoEl) {
+  const layer = document.getElementById('pomodoro-layer');
+  if (!layer) return;
+
+  const size = 16;
+  let startClientX = 0;
+  let startClientY = 0;
+  let startTop = 0;
+  let startLeft = 0;
+
+  function getClientCoords(e) {
+    if (e.touches && e.touches.length) {
+      return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+    }
+    return { clientX: e.clientX, clientY: e.clientY };
+  }
+
+  function onPointerDown(e) {
+    e.preventDefault();
+    const coords = e.touches ? getClientCoords(e) : { clientX: e.clientX, clientY: e.clientY };
+    startClientX = coords.clientX;
+    startClientY = coords.clientY;
+    startTop = parseFloat(tomatoEl.style.top) || 0;
+    startLeft = parseFloat(tomatoEl.style.left) || 0;
+    tomatoEl.classList.add('pomodoro-tomato--dragging');
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onUp);
+  }
+
+  function onMove(e) {
+    e.preventDefault();
+    const coords = e.touches ? getClientCoords(e) : { clientX: e.clientX, clientY: e.clientY };
+    const deltaX = coords.clientX - startClientX;
+    const deltaY = coords.clientY - startClientY;
+    tomatoEl.style.left = `${startLeft + deltaX}px`;
+    tomatoEl.style.top = `${startTop + deltaY}px`;
+  }
+
+  function onUp(e) {
+    if (e.type === 'touchend') {
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
+    } else {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    tomatoEl.classList.remove('pomodoro-tomato--dragging');
+
+    const layerRect = layer.getBoundingClientRect();
+    const elRect = tomatoEl.getBoundingClientRect();
+    let top = elRect.top - layerRect.top;
+    let left = elRect.left - layerRect.left;
+    const maxTop = Math.max(0, layerRect.height - size);
+    const maxLeft = Math.max(0, layerRect.width - size);
+    top = Math.min(Math.max(0, top), maxTop);
+    left = Math.min(Math.max(0, left), maxLeft);
+    tomatoEl.style.top = `${top}px`;
+    tomatoEl.style.left = `${left}px`;
+
+    const index = parseInt(tomatoEl.getAttribute('data-index'), 10);
+    if (!Number.isNaN(index) && index >= 0 && index < tomatoPositions.length) {
+      tomatoPositions[index] = { top, left };
+      saveTomatoPositions();
+    }
+  }
+
+  tomatoEl.addEventListener('mousedown', onPointerDown);
+  tomatoEl.addEventListener('touchstart', onPointerDown, { passive: false });
+}
+
+function placeTomatoIcon(optionalPosition) {
+  const layer = ensurePomodoroLayer();
+  const appRect = appEl.getBoundingClientRect();
+  const size = 16;
+  if (appRect.width < size || appRect.height < size) return;
+
+  const position = optionalPosition != null
+    ? optionalPosition
+    : getRandomTomatoPosition();
+  const index = tomatoPositions.length;
+  tomatoPositions.push(position);
+  saveTomatoPositions();
+
+  const tomatoEl = createTomatoElement(position, index);
+  makeTomatoDraggable(tomatoEl);
+  layer.appendChild(tomatoEl);
+}
+
+function loadCompletedPomodoros() {
+  try {
+    const positionsStored = window.localStorage.getItem(POMODORO_POSITIONS_KEY);
+    if (positionsStored) {
+      const parsed = JSON.parse(positionsStored);
+      if (Array.isArray(parsed)) {
+        tomatoPositions = parsed.filter(
+          (p) => p && typeof p.top === 'number' && typeof p.left === 'number'
+        );
+        const layer = ensurePomodoroLayer();
+        const appRect = appEl.getBoundingClientRect();
+        const size = 16;
+        const maxTop = Math.max(0, appRect.height - size);
+        const maxLeft = Math.max(0, appRect.width - size);
+        tomatoPositions.forEach((pos, i) => {
+          const top = Math.min(Math.max(0, pos.top), maxTop);
+          const left = Math.min(Math.max(0, pos.left), maxLeft);
+          tomatoPositions[i] = { top, left };
+          const tomatoEl = createTomatoElement({ top, left }, i);
+          makeTomatoDraggable(tomatoEl);
+          layer.appendChild(tomatoEl);
+        });
+        completedPomodoros = tomatoPositions.length;
+        return;
+      }
+    }
+    const countStored = window.localStorage.getItem(POMODORO_STORAGE_KEY);
+    if (countStored) {
+      const parsed = Number(countStored);
+      if (!Number.isNaN(parsed) && parsed >= 0) {
+        completedPomodoros = parsed;
+        tomatoPositions = [];
+        const layer = ensurePomodoroLayer();
+        for (let i = 0; i < completedPomodoros; i += 1) {
+          const position = getRandomTomatoPosition();
+          tomatoPositions.push(position);
+          const tomatoEl = createTomatoElement(position, i);
+          makeTomatoDraggable(tomatoEl);
+          layer.appendChild(tomatoEl);
+        }
+        saveTomatoPositions();
+      }
+    }
+  } catch (_) {
+    // Ignore storage failures
+  }
+}
+
+function recordCompletedPomodoro() {
+  const position = getRandomTomatoPosition();
+  placeTomatoIcon(position);
+  completedPomodoros = tomatoPositions.length;
+}
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -75,7 +334,11 @@ function tick() {
   if (!isRunning) return;
   timeRemaining -= 1;
   if (timeRemaining <= 0) {
+    const finishedMode = currentMode;
     currentMode = currentMode === 'work' ? 'break' : 'work';
+    if (finishedMode === 'work') {
+      recordCompletedPomodoro();
+    }
     timeRemaining = currentMode === 'work' ? workDurationSec : breakDurationSec;
     triggerTimerFlash();
     playNotificationSound();
@@ -294,4 +557,5 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+loadCompletedPomodoros();
 render();
