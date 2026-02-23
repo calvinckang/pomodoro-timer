@@ -1,29 +1,47 @@
 :root {
-  /* Colors: base & surfaces */
-  --color-bg: #050712;
-  --color-surface: rgba(15, 18, 32, 0.92);
-  --color-surface-elevated: rgba(22, 26, 45, 0.96);
-  --color-surface-hover: rgba(255, 255, 255, 0.04);
-  --color-input-bg: rgba(5, 7, 18, 0.75);
-  --color-border-subtle: rgba(255, 255, 255, 0.06);
-  --color-border-hover: rgba(255, 255, 255, 0.12);
-  --color-overlay-soft: rgba(9, 11, 22, 0.6);
+  /* Base palette (raw values; semantic tokens reference these) */
+  --neutral-100: #ffffff;
+  --neutral-200: #f5f7ff;
+  --neutral-300: #edf0ff;
+  --neutral-600: #161a2d;
+  --neutral-700: #0f1220;
+  --neutral-800: #090b16;
+  --neutral-900: #050712;
+  --violet-400: color-mix(in srgb, #7c8cff 35%, transparent);
+  --violet-500: #7c8cff;
+  --coral-400: rgba(255, 91, 60, 0.35);
+  --coral-500: #ff5b3c;
+  --teal-400: rgba(30, 209, 164, 0.35);
+  --teal-500: #1ed1a4;
+  --pink-500: #ff4b81;
 
-  /* Colors: text */
-  --color-text-primary: #f5f7ff;
-  --color-text-muted: rgba(237, 240, 255, 0.65);
-  --color-text-inverse: #050712;
+  /* Semantic: backgrounds & surfaces */
+  --color-bg: var(--neutral-900);
+  --color-surface: color-mix(in srgb, var(--neutral-700) 92%, transparent);
+  --color-surface-elevated: color-mix(in srgb, var(--neutral-600) 96%, transparent);
+  --color-surface-hover: color-mix(in srgb, var(--neutral-100) 4%, transparent);
+  --color-input-bg: color-mix(in srgb, var(--neutral-900) 75%, transparent);
+  --color-overlay-soft: color-mix(in srgb, var(--neutral-800) 60%, transparent);
 
-  /* Colors: accents (work / break) */
-  --color-accent-work: #ff5b3c;
-  --color-accent-work-soft: rgba(255, 91, 60, 0.35);
-  --color-accent-break: #1ed1a4;
-  --color-accent-break-soft: rgba(30, 209, 164, 0.35);
+  /* Semantic: borders */
+  --color-border-subtle: color-mix(in srgb, var(--neutral-100) 6%, transparent);
+  --color-border-hover: color-mix(in srgb, var(--neutral-100) 12%, transparent);
 
-  /* Colors: states */
-  --color-accent-primary: #7c8cff;
-  --color-accent-focus: #7c8cff;
-  --color-danger: #ff4b81;
+  /* Semantic: text */
+  --color-text-primary: var(--neutral-200);
+  --color-text-muted: color-mix(in srgb, var(--neutral-300) 65%, transparent);
+  --color-text-inverse: var(--neutral-900);
+
+  /* Semantic: accents (work / break) */
+  --color-accent-work: var(--coral-500);
+  --color-accent-work-soft: var(--coral-400);
+  --color-accent-break: var(--teal-500);
+  --color-accent-break-soft: var(--teal-400);
+
+  /* Semantic: UI states */
+  --color-accent-primary: var(--violet-500);
+  --color-accent-focus: var(--violet-500);
+  --color-danger: var(--pink-500);
 
   /* Spacing */
   --space-xs: 0.25rem;
@@ -68,6 +86,27 @@
 
   /* Focus */
   --outline-offset-tight: 1px;
+}
+
+/* Timer zero: brief background flash when mode switches */
+@keyframes timer-flash-work {
+  0% { background: var(--color-bg); }
+  25% { background: var(--coral-400); }
+  100% { background: var(--color-bg); }
+}
+
+@keyframes timer-flash-break {
+  0% { background: var(--color-bg); }
+  25% { background: var(--teal-400); }
+  100% { background: var(--color-bg); }
+}
+
+body.timer-flash-work {
+  animation: timer-flash-work 0.5s ease-out;
+}
+
+body.timer-flash-break {
+  animation: timer-flash-break 0.5s ease-out;
 }
 
 *,
@@ -201,6 +240,21 @@ body {
   transform: scale(0.98);
 }
 
+/* Page title (top-left, aligned with settings) */
+
+.app-title {
+  position: absolute;
+  top: var(--space-lg);
+  left: var(--space-lg);
+  margin: 0;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
 /* Settings (positioned in top-right of #app) */
 
 .app-settings {
@@ -269,6 +323,13 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+}
+
+.settings-error {
+  min-height: 1em;
+  margin-top: var(--space-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
 }
 
 /* Icon button component */
@@ -362,6 +423,10 @@ body {
   appearance: textfield;
 }
 
+.settings-number-input:hover {
+  border-color: var(--color-border-hover);
+}
+
 .settings-number-input::-webkit-outer-spin-button,
 .settings-number-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -371,6 +436,14 @@ body {
 .settings-number-input:focus-visible {
   outline: 2px solid var(--color-accent-focus);
   outline-offset: var(--outline-offset-tight);
+}
+
+.settings-number-input--error {
+  border-color: var(--color-danger);
+}
+
+.settings-number-input--error:focus-visible {
+  outline-color: var(--color-danger);
 }
 
 .settings-actions {

@@ -8,6 +8,7 @@
 </head>
 <body>
     <div id="app">
+        <h1 class="app-title">Pomodoro timer</h1>
         <div class="app-settings">
             <button
                 id="settings-btn"
@@ -77,7 +78,7 @@
                             type="number"
                             inputmode="numeric"
                             min="1"
-                            max="180"
+                            max="999"
                         />
                         <button
                             type="button"
@@ -134,6 +135,7 @@
                             </svg>
                         </button>
                     </div>
+                    <div class="settings-error" id="settings-work-error" aria-live="polite"></div>
                 </div>
 
                 <div class="settings-group">
@@ -145,7 +147,7 @@
                             type="number"
                             inputmode="numeric"
                             min="1"
-                            max="60"
+                            max="999"
                         />
                         <button
                             type="button"
@@ -202,6 +204,7 @@
                             </svg>
                         </button>
                     </div>
+                    <div class="settings-error" id="settings-break-error" aria-live="polite"></div>
                 </div>
                 </div>
 

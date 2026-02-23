@@ -23,17 +23,52 @@ const settingsSaveBtn = document.getElementById('settings-save-btn');
 const workResetBtn = document.getElementById('settings-work-reset');
 const breakResetBtn = document.getElementById('settings-break-reset');
 const settingsCloseBtn = document.getElementById('settings-close-btn');
+const workErrorEl = document.getElementById('settings-work-error');
+const breakErrorEl = document.getElementById('settings-break-error');
 
 let timeRemaining = workDurationSec;
 let isRunning = false;
 let currentMode = 'work';
 let tickIntervalId = null;
 let isSettingsOpen = false;
+let audioContext = null;
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function ensureAudioContext() {
+  if (audioContext) return;
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playNotificationSound() {
+  try {
+    if (!audioContext) ensureAudioContext();
+    if (audioContext.state === 'suspended') audioContext.resume();
+    const gain = audioContext.createGain();
+    gain.gain.value = 0.25;
+    gain.connect(audioContext.destination);
+    const osc = audioContext.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    osc.connect(gain);
+    osc.start(audioContext.currentTime);
+    osc.stop(audioContext.currentTime + 0.15);
+  } catch (_) {}
+}
+
+function triggerTimerFlash() {
+  const flashClass = currentMode === 'work' ? 'timer-flash-work' : 'timer-flash-break';
+  document.body.classList.add(flashClass);
+  const onEnd = (e) => {
+    if (e.animationName !== 'timer-flash-work' && e.animationName !== 'timer-flash-break') return;
+    document.body.classList.remove(flashClass);
+    document.body.removeEventListener('animationend', onEnd);
+  };
+  document.body.addEventListener('animationend', onEnd);
 }
 
 function tick() {
@@ -42,6 +77,8 @@ function tick() {
   if (timeRemaining <= 0) {
     currentMode = currentMode === 'work' ? 'break' : 'work';
     timeRemaining = currentMode === 'work' ? workDurationSec : breakDurationSec;
+    triggerTimerFlash();
+    playNotificationSound();
   }
   render();
 }
@@ -49,6 +86,7 @@ function tick() {
 function startPause() {
   isRunning = !isRunning;
   if (isRunning) {
+    ensureAudioContext();
     tickIntervalId = setInterval(tick, 1000);
     startPauseBtn.textContent = 'Pause';
   } else {
@@ -89,6 +127,46 @@ function clampMinutes(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+function clearSettingsErrors() {
+  workErrorEl.textContent = '';
+  breakErrorEl.textContent = '';
+  workInput.classList.remove('settings-number-input--error');
+  breakInput.classList.remove('settings-number-input--error');
+}
+
+function isSettingsValueValid(value, min, max) {
+  const raw = String(value).trim();
+  if (!raw) return false;
+  const n = Number(raw);
+  return !Number.isNaN(n) && n >= min && n <= max;
+}
+
+function validateSettingsInputs() {
+  clearSettingsErrors();
+
+  let isValid = true;
+
+  const rawWork = workInput.value.trim();
+  const rawBreak = breakInput.value.trim();
+
+  const workValue = Number(rawWork);
+  const breakValue = Number(rawBreak);
+
+  if (!rawWork || Number.isNaN(workValue) || workValue < 1 || workValue > 999) {
+    workErrorEl.textContent = 'Work duration must be a number between 1 and 999 minutes.';
+    workInput.classList.add('settings-number-input--error');
+    isValid = false;
+  }
+
+  if (!rawBreak || Number.isNaN(breakValue) || breakValue < 1 || breakValue > 999) {
+    breakErrorEl.textContent = 'Break duration must be a number between 1 and 999 minutes.';
+    breakInput.classList.add('settings-number-input--error');
+    isValid = false;
+  }
+
+  return isValid;
+}
+
 function openSettings() {
   isSettingsOpen = true;
   settingsPopover.setAttribute('aria-hidden', 'false');
@@ -97,6 +175,7 @@ function openSettings() {
   settingsPopover.style.removeProperty('left');
   settingsPopover.style.removeProperty('top');
   syncSettingsInputsFromState();
+  clearSettingsErrors();
   workInput.focus();
 }
 
@@ -118,8 +197,8 @@ function applySettings() {
   const rawWork = parseInt(workInput.value, 10);
   const rawBreak = parseInt(breakInput.value, 10);
 
-  const workMinutes = clampMinutes(rawWork, 1, 180);
-  const breakMinutes = clampMinutes(rawBreak, 1, 60);
+  const workMinutes = clampMinutes(rawWork, 1, 999);
+  const breakMinutes = clampMinutes(rawBreak, 1, 999);
 
   workDurationSec = workMinutes * 60;
   breakDurationSec = breakMinutes * 60;
@@ -143,10 +222,14 @@ settingsBtn.addEventListener('click', toggleSettings);
 settingsCancelBtn.addEventListener('click', () => {
   // Revert any unsaved edits
   syncSettingsInputsFromState();
+  clearSettingsErrors();
   closeSettings();
 });
 
 settingsSaveBtn.addEventListener('click', () => {
+  if (!validateSettingsInputs()) {
+    return;
+  }
   applySettings();
   closeSettings();
 });
@@ -155,28 +238,54 @@ settingsCloseBtn.addEventListener('click', () => {
   closeSettings();
 });
 
+workInput.addEventListener('input', () => {
+  if (isSettingsValueValid(workInput.value, 1, 999)) {
+    workErrorEl.textContent = '';
+    workInput.classList.remove('settings-number-input--error');
+  }
+});
+
+breakInput.addEventListener('input', () => {
+  if (isSettingsValueValid(breakInput.value, 1, 999)) {
+    breakErrorEl.textContent = '';
+    breakInput.classList.remove('settings-number-input--error');
+  }
+});
+
 workDecreaseBtn.addEventListener('click', () => {
-  stepInput(workInput, -1, 1, 180);
+  stepInput(workInput, -1, 1, 999);
+  workErrorEl.textContent = '';
+  workInput.classList.remove('settings-number-input--error');
 });
 
 workIncreaseBtn.addEventListener('click', () => {
-  stepInput(workInput, 1, 1, 180);
+  stepInput(workInput, 1, 1, 999);
+  workErrorEl.textContent = '';
+  workInput.classList.remove('settings-number-input--error');
 });
 
 breakDecreaseBtn.addEventListener('click', () => {
-  stepInput(breakInput, -1, 1, 60);
+  stepInput(breakInput, -1, 1, 999);
+  breakErrorEl.textContent = '';
+  breakInput.classList.remove('settings-number-input--error');
 });
 
 breakIncreaseBtn.addEventListener('click', () => {
-  stepInput(breakInput, 1, 1, 60);
+  stepInput(breakInput, 1, 1, 999);
+  breakErrorEl.textContent = '';
+  breakInput.classList.remove('settings-number-input--error');
 });
 
 workResetBtn.addEventListener('click', () => {
   workInput.value = String(DEFAULT_WORK_MIN);
+  workErrorEl.textContent = '';
+  workInput.classList.remove('settings-number-input--error');
 });
 
 breakResetBtn.addEventListener('click', () => {
   breakInput.value = String(DEFAULT_BREAK_MIN);
+  breakErrorEl.textContent = '';
+  breakInput.classList.remove('settings-number-input--error');
 });
 
 document.addEventListener('keydown', (event) => {
