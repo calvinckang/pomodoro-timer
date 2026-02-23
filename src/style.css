@@ -1,58 +1,73 @@
 :root {
-  /* Base background & surfaces */
+  /* Colors: base & surfaces */
   --color-bg: #050712;
   --color-surface: rgba(15, 18, 32, 0.92);
   --color-surface-elevated: rgba(22, 26, 45, 0.96);
+  --color-surface-hover: rgba(255, 255, 255, 0.04);
+  --color-input-bg: rgba(5, 7, 18, 0.75);
   --color-border-subtle: rgba(255, 255, 255, 0.06);
   --color-border-hover: rgba(255, 255, 255, 0.12);
   --color-overlay-soft: rgba(9, 11, 22, 0.6);
 
-  /* Text */
+  /* Colors: text */
   --color-text-primary: #f5f7ff;
   --color-text-muted: rgba(237, 240, 255, 0.65);
   --color-text-inverse: #050712;
 
-  /* Work vs break accents */
+  /* Colors: accents (work / break) */
   --color-accent-work: #ff5b3c;
   --color-accent-work-soft: rgba(255, 91, 60, 0.35);
   --color-accent-break: #1ed1a4;
   --color-accent-break-soft: rgba(30, 209, 164, 0.35);
 
-  /* States */
+  /* Colors: states */
   --color-accent-primary: #7c8cff;
   --color-accent-focus: #7c8cff;
   --color-danger: #ff4b81;
 
-  /* Spacing scale */
+  /* Spacing */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 0.75rem;
   --space-lg: 1rem;
   --space-xl: 1.5rem;
 
+  /* Sizes */
+  --size-icon-button: 2rem;
+  --size-icon-reset: 0.75rem;
+  --size-settings-popover-width: 14rem;
+
   /* Typography */
   --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
   --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
+  --font-size-btn-small: 0.875rem;
   --font-size-md: 1rem;
   --font-size-lg: 1.125rem;
   --font-size-xl: 4rem;
-
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
-
   --letter-spacing-wide: 0.05em;
   --line-height-tight: 1.1;
 
-  /* Border radius */
+  /* Radius */
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-full: 999px;
+
+  /* Shadow */
+  --shadow-popover: 0 18px 45px rgba(0, 0, 0, 0.45);
+
+  /* Transition */
+  --transition-duration-fast: 0.1s;
+  --transition-duration-normal: 0.15s;
+
+  /* Focus */
+  --outline-offset-tight: 1px;
 }
 
 *,
@@ -72,6 +87,7 @@ body {
 }
 
 #app {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -128,42 +144,238 @@ body {
   flex-wrap: wrap;
 }
 
-.timer-button {
+/* Button component: size variants (--small, --large) + intent variants (--primary, --secondary) */
+
+.btn {
   font-family: var(--font-family-sans);
-  font-size: var(--font-size-md);
   font-weight: var(--font-weight-medium);
-  padding: var(--space-sm) var(--space-lg);
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.1s ease;
+  transition: opacity var(--transition-duration-normal) ease,
+    transform var(--transition-duration-fast) ease;
 }
 
-.timer-button:focus-visible {
+.btn:focus-visible {
   outline: 2px solid var(--color-accent-focus);
-  outline-offset: 2px;
+  outline-offset: var(--space-xs);
 }
 
-.timer-button--primary {
+/* Size variants */
+.btn--small {
+  font-size: var(--font-size-btn-small);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.btn--large {
+  font-size: var(--font-size-md);
+  padding: var(--space-sm) var(--space-lg);
+}
+
+/* Intent variants */
+.btn--primary {
   background: var(--color-accent-primary);
   color: var(--color-text-inverse);
 }
 
-.timer-button--primary:hover {
+.btn--primary:hover {
   opacity: 0.8;
 }
 
-.timer-button--primary:active {
+.btn--primary:active {
   transform: scale(0.98);
 }
 
-.timer-button--ghost {
+.btn--secondary {
   background: transparent;
   color: var(--color-text-muted);
   border: 1px solid var(--color-border-subtle);
 }
 
-.timer-button--ghost:hover {
+.btn--secondary:hover {
   color: var(--color-text-primary);
   border-color: var(--color-border-hover);
+}
+
+.btn--secondary:active {
+  transform: scale(0.98);
+}
+
+/* Settings (positioned in top-right of #app) */
+
+.app-settings {
+  position: absolute;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-sm);
+}
+
+.app-settings .settings-popover {
+  position: absolute;
+  top: calc(100% + var(--space-sm));
+  left: auto;
+  right: 0;
+  width: var(--size-settings-popover-width);
+  padding: var(--space-lg);
+  background: var(--color-surface-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-popover);
+  display: none;
+  z-index: 10;
+}
+
+.app-settings .settings-popover[aria-hidden="false"] {
+  display: block;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.settings-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+.settings-body {
+  margin-bottom: var(--space-xl);
+}
+
+.settings-group {
+  margin-bottom: var(--space-lg);
+}
+
+.settings-group:last-child {
+  margin-bottom: 0;
+}
+
+.settings-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.settings-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* Icon button component */
+
+.icon-button {
+  width: var(--size-icon-button);
+  height: var(--size-icon-button);
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-duration-normal) ease,
+    border-color var(--transition-duration-normal) ease,
+    color var(--transition-duration-normal) ease,
+    transform var(--transition-duration-fast) ease;
+}
+
+.icon-button--primary {
+  border: 1px solid transparent;
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+}
+
+.icon-button--primary:hover {
+  opacity: 0.9;
+}
+
+.icon-button--primary:active {
+  transform: scale(0.97);
+}
+
+.icon-button--secondary {
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+}
+
+.icon-button--secondary:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-hover);
+  background: var(--color-surface-hover);
+}
+
+.icon-button--secondary:active {
+  transform: scale(0.97);
+}
+
+.icon-button--tertiary {
+  color: var(--color-text-muted);
+}
+
+.icon-button--tertiary:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-hover);
+}
+
+.icon-button--tertiary:active {
+  transform: scale(0.97);
+}
+
+.icon-button--tertiary:focus-visible {
+  outline: 2px solid var(--color-accent-focus);
+  outline-offset: var(--outline-offset-tight);
+}
+
+.settings-input-row .icon-button--secondary:first-of-type {
+  margin-left: calc(var(--space-sm) - var(--space-xs));
+}
+
+.settings-reset-icon {
+  flex-shrink: 0;
+  width: var(--size-icon-reset);
+  height: var(--size-icon-reset);
+}
+
+.settings-number-input {
+  flex: 1;
+  min-width: 0;
+  height: var(--size-icon-button);
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-input-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-md);
+  text-align: center;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.settings-number-input::-webkit-outer-spin-button,
+.settings-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.settings-number-input:focus-visible {
+  outline: 2px solid var(--color-accent-focus);
+  outline-offset: var(--outline-offset-tight);
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin: 0;
 }

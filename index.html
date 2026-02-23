@@ -8,6 +8,224 @@
 </head>
 <body>
     <div id="app">
+        <div class="app-settings">
+            <button
+                id="settings-btn"
+                class="icon-button icon-button--secondary"
+                type="button"
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="settings-popover"
+                aria-label="Settings"
+            >
+                <svg
+                    class="settings-reset-icon"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+            </button>
+
+            <section
+                id="settings-popover"
+                class="settings-popover"
+                aria-label="Timer settings"
+                aria-hidden="true"
+            >
+                <header class="settings-header">
+                    <h2 class="settings-title">Timer settings</h2>
+                    <button
+                        type="button"
+                        id="settings-close-btn"
+                        class="icon-button icon-button--tertiary"
+                        aria-label="Close settings"
+                    >
+                        <svg
+                            class="settings-reset-icon"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <line x1="5" y1="5" x2="19" y2="19" />
+                            <line x1="19" y1="5" x2="5" y2="19" />
+                        </svg>
+                    </button>
+                </header>
+
+                <div class="settings-body">
+                <div class="settings-group">
+                    <label for="settings-work-input" class="settings-label">Work duration (minutes)</label>
+                    <div class="settings-input-row">
+                        <input
+                            id="settings-work-input"
+                            class="settings-number-input"
+                            type="number"
+                            inputmode="numeric"
+                            min="1"
+                            max="180"
+                        />
+                        <button
+                            type="button"
+                            id="settings-work-decrease"
+                            class="icon-button icon-button--secondary"
+                            aria-label="Decrease work duration by 1 minute"
+                        >
+                            <svg
+                                class="settings-reset-icon"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            id="settings-work-increase"
+                            class="icon-button icon-button--secondary"
+                            aria-label="Increase work duration by 1 minute"
+                        >
+                            <svg
+                                class="settings-reset-icon"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            id="settings-work-reset"
+                            class="icon-button icon-button--tertiary"
+                            aria-label="Reset work duration to default"
+                        >
+                            <svg class="settings-reset-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                <path d="M3 3v5h5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label for="settings-break-input" class="settings-label">Break duration (minutes)</label>
+                    <div class="settings-input-row">
+                        <input
+                            id="settings-break-input"
+                            class="settings-number-input"
+                            type="number"
+                            inputmode="numeric"
+                            min="1"
+                            max="60"
+                        />
+                        <button
+                            type="button"
+                            id="settings-break-decrease"
+                            class="icon-button icon-button--secondary"
+                            aria-label="Decrease break duration by 1 minute"
+                        >
+                            <svg
+                                class="settings-reset-icon"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            id="settings-break-increase"
+                            class="icon-button icon-button--secondary"
+                            aria-label="Increase break duration by 1 minute"
+                        >
+                            <svg
+                                class="settings-reset-icon"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            id="settings-break-reset"
+                            class="icon-button icon-button--tertiary"
+                            aria-label="Reset break duration to default"
+                        >
+                            <svg class="settings-reset-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                <path d="M3 3v5h5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                </div>
+
+                <footer class="settings-footer">
+                <div class="settings-actions">
+                    <button
+                        type="button"
+                        id="settings-cancel-btn"
+                        class="btn btn--small btn--secondary"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        id="settings-save-btn"
+                        class="btn btn--small btn--primary"
+                    >
+                        Save
+                    </button>
+                </div>
+                </footer>
+            </section>
+        </div>
+
         <main class="timer" aria-label="Pomodoro timer">
             <header class="timer-header">
                 <p id="mode-indicator" class="timer-mode" aria-live="polite">Work</p>
@@ -18,10 +236,10 @@
             </section>
 
             <section class="timer-controls" aria-label="Timer controls">
-                <button id="start-pause-btn" class="timer-button timer-button--primary" type="button">
+                <button id="start-pause-btn" class="btn btn--large btn--primary" type="button">
                     Start
                 </button>
-                <button id="reset-btn" class="timer-button timer-button--ghost" type="button">
+                <button id="reset-btn" class="btn btn--large btn--secondary" type="button">
                     Reset
                 </button>
             </section>
