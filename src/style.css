@@ -19,6 +19,7 @@
   --color-accent-break-soft: rgba(30, 209, 164, 0.35);
 
   /* States */
+  --color-accent-primary: #7c8cff;
   --color-accent-focus: #7c8cff;
   --color-danger: #ff4b81;
 
@@ -100,6 +101,14 @@ body {
   letter-spacing: var(--letter-spacing-wide);
 }
 
+#app[data-mode="work"] .timer-mode {
+  color: var(--color-accent-work);
+}
+
+#app[data-mode="break"] .timer-mode {
+  color: var(--color-accent-break);
+}
+
 .timer-display-section {
   margin-bottom: var(--space-xl);
 }
@@ -136,12 +145,12 @@ body {
 }
 
 .timer-button--primary {
-  background: var(--color-accent-work);
+  background: var(--color-accent-primary);
   color: var(--color-text-inverse);
 }
 
 .timer-button--primary:hover {
-  opacity: 0.92;
+  opacity: 0.8;
 }
 
 .timer-button--primary:active {
